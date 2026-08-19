@@ -12,53 +12,15 @@ namespace AppWebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]   
-    public class AdminController : Controller
+    public class QuotesController : Controller
     {
-        readonly ILogger<AdminController> _logger;
+        readonly ILogger<QuotesController> _logger;
         readonly IWebHostEnvironment _environment;
         readonly SeedGenerator _seeder = new SeedGenerator();
 
         //GET: api/admin/helloworld
-        [HttpGet()]
-        [ActionName("HelloWorld")]
-        [ProducesResponseType(200)]
-        public IActionResult HelloWorld()
-        {
-            try
-            {
-                var helloWorldOptions = new
-                {
-                    greeting = "Hello, World!",
-                    from = "a friend",
-                    time = DateTime.UtcNow
-                };
-                _logger.LogInformation("HelloWorld endpoint called at {Time}", helloWorldOptions.time);
-                return Ok(helloWorldOptions);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        //GET: api/admin/version
-        [HttpGet()]
-        [ActionName("Version")]
-        [ProducesResponseType(typeof(VersionInfo), 200)]
-        public IActionResult Version()
-        {
-            try
-            {
-                var versionInfo = VersionInfo.FromAssembly();
-                _logger.LogInformation("Version endpoint called at {Time}", DateTime.UtcNow);
-                return Ok(versionInfo);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving version information");
-                return BadRequest(ex.Message);
-            }
-        }
+        
+        
         [HttpGet()]
         [ActionName("Quotes")]
         public IActionResult AllQuotes()
@@ -95,7 +57,7 @@ namespace AppWebApi.Controllers
         }
 
 
-        public AdminController(ILogger<AdminController> logger, IWebHostEnvironment environment)
+        public QuotesController(ILogger<QuotesController> logger, IWebHostEnvironment environment)
         {
             _logger = logger;
             _environment = environment;
