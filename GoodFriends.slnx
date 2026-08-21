@@ -1,4 +1,4 @@
 <Solution>
   <Project Path="AppWebApi/AppWebApi.csproj" />
-  <Project Path="SeedGenerator/SeedGenerator.csproj" />
+  <Project Path="Configuration/Configuration.csproj" />
 </Solution>

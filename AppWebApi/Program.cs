@@ -1,4 +1,6 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Configuration.Options;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // NOTE: global cors policy needed for JS and React frontends
 builder.Services.AddCors(options =>
@@ -15,6 +17,16 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 builder.Services.AddEndpointsApiExplorer();
 
+var currentDir = Directory.GetCurrentDirectory();
+var assembly=System.Reflection.Assembly.Load("Configuration");
+builder.Configuration.SetBasePath(Path.Combine(currentDir, "../AppWebApi"))
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).AddUserSecrets(assembly);
+
+builder.Services.Configure<MySecret>(options =>
+    builder.Configuration.GetSection("MySettings").Bind(options));
+builder.Services.Configure<AesEncryptionOptions>(options =>
+    builder.Configuration.GetSection(AesEncryptionOptions.Position).Bind(options));
+builder.Services.Configure<VersionOptions>(options => VersionOptions.ReadFromAssembly(options));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddSwaggerGen(c =>
 {

@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Seido.Utilities.SeedGenerator;
+using Configuration.Options;
 
 
 
@@ -15,7 +17,11 @@ namespace AppWebApi.Controllers
     public class AdminController : Controller
     {
         readonly ILogger<AdminController> _logger;
+        readonly IConfiguration _configuration;
         readonly IWebHostEnvironment _environment;
+        readonly MySecret _mySecret;
+        readonly VersionOptions _versionOptions;
+        readonly AesEncryptionOptions _aesOptions;
         readonly SeedGenerator _seeder = new SeedGenerator();
 
         //GET: api/admin/helloworld
@@ -44,14 +50,14 @@ namespace AppWebApi.Controllers
         //GET: api/admin/version
         [HttpGet()]
         [ActionName("Version")]
-        [ProducesResponseType(typeof(VersionInfo), 200)]
+        [ProducesResponseType(typeof(VersionOptions), 200)]
         public IActionResult Version()
         {
             try
             {
-                var versionInfo = VersionInfo.FromAssembly();
+                
                 _logger.LogInformation("Version endpoint called at {Time}", DateTime.UtcNow);
-                return Ok(versionInfo);
+                return Ok(_versionOptions);
             }
             catch (Exception ex)
             {
@@ -93,12 +99,66 @@ namespace AppWebApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet()]
+        [ActionName("Key")]
+        public IActionResult Key()
+        {
+            try
+            {
+                var keyOptions =new
+                {
+                    MyName = _configuration["MySettings:MyName"],
+                    MyNumber = _configuration["MySettings:MyNumber"]
+                };
+                return Ok(keyOptions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving key");
+                return BadRequest(ex.Message);
+            }
+        }
 
+        [HttpGet()]
+        [ActionName("Options")]
+        public IActionResult Options()
+        {
+            try
+            {
+               
+                return Ok(_mySecret);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving options");
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet()]
+        [ActionName("Option2")]
+        [ProducesResponseType( 200, Type = typeof(AesEncryptionOptions))]
+        public IActionResult Option2()
+        {
+            try
+            {
+                
+                return Ok(_aesOptions);
+            }
+            catch (Exception ex)
+            {
+                
+                return BadRequest(ex.Message);
+            }
+        }
 
-        public AdminController(ILogger<AdminController> logger, IWebHostEnvironment environment)
+        public AdminController(ILogger<AdminController> logger,IConfiguration configuration, IOptions<MySecret> mySecret,IOptions<VersionOptions> versionOptions,IOptions<AesEncryptionOptions> aesOptions, IWebHostEnvironment environment)
         {
             _logger = logger;
+            _configuration = configuration;
             _environment = environment;
+           _mySecret = mySecret.Value;
+           _aesOptions = aesOptions.Value;
+           _versionOptions = versionOptions.Value;
         }
     }
 }
